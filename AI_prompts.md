@@ -54,7 +54,22 @@ This file records the prompts I typed to my vibe coder (Claude Code), one sectio
 >
 > Clarify the required MCP configuration format
 
-**Follow-up:** None needed.
+**Follow-up:**
+> Please complete Problem 4's missing MCP smoke test now that the session is in the HW5 folder.
+> Use the `campus-customs` MCP server to execute these three prompts:
+>
+> 1. "Use `get_invoice_status` to check the current status of invoice 501."
+> 2. "Use `get_rent_due` to check the rent details for lease 1."
+> 3. "Use `check_bulk_order` to evaluate an order of 20 `CC-HOOD-NAVY` hoodies in size M with a 10% discount."
+
+What was missing: the first attempt only created `.mcp.json` and documented the format. Claude Code loads MCP servers when a session starts, and my session had started in the parent folder, so the smoke test couldn't run until the session was moved into the HW5 folder.
+
+**Smoke-test prompts** (recorded with tool outputs in `output/mcp_smoke.json`):
+> Use `get_invoice_status` to check the current status of invoice 501.
+
+> Use `get_rent_due` to check the rent details for lease 1.
+
+> Use `check_bulk_order` to evaluate an order of 20 `CC-HOOD-NAVY` hoodies in size M with a 10% discount.
 
 ## Problem 5: Build the Agent Team and Expand MCP Tools
 

@@ -1,0 +1,166 @@
+{
+  "description": "MCP smoke test for Problem 4: the vibe coder (Claude Code) called each campus-customs MCP tool through the server configured in .mcp.json, and every output was checked against data/campus_customs_new.db.",
+  "vibe_coder": "Claude Code",
+  "mcp_server": {
+    "name": "campus-customs",
+    "config": ".mcp.json",
+    "transport": "stdio",
+    "command": "python3 mcp_server/server.py"
+  },
+  "database": "data/campus_customs_new.db",
+  "database_state": "End state of the Problem 9 run (not reset): checking $152.00, invoice 501 paid, lease 1 next_due 2026-10-02. The database was only read; git status showed it unchanged after the tests.",
+  "tested_on": "2026-10-15",
+  "shop_date": "2026-08-31",
+  "tests": [
+    {
+      "prompt": "Use `get_invoice_status` to check the current status of invoice 501.",
+      "tool": "get_invoice_status",
+      "arguments": {
+        "invoice_id": 501
+      },
+      "output": {
+        "invoice_id": 501,
+        "amount": 840,
+        "due_date": "2026-08-28",
+        "status": "paid",
+        "description": "Rush reprint CC-TEE-WHITE S",
+        "today": "2026-08-31",
+        "overdue": false,
+        "days_past_due": 3,
+        "vendor": {
+          "id": 1,
+          "name": "Bulldog Print Co",
+          "specialty": "apparel reprint",
+          "lead_days": 5
+        },
+        "vendor_can_ship": true
+      },
+      "verification": {
+        "sql": "SELECT i.*, v.name, v.specialty, v.lead_days FROM invoices i JOIN vendors v ON v.id = i.vendor_id WHERE i.id = 501; SELECT date_today FROM desk;",
+        "database_values": {
+          "amount": 840.0,
+          "due_date": "2026-08-28",
+          "status": "paid",
+          "description": "Rush reprint CC-TEE-WHITE S",
+          "vendor": "Bulldog Print Co (id 1, apparel reprint, 5 lead days)",
+          "date_today": "2026-08-31"
+        },
+        "matches": true,
+        "notes": "Invoice 501 is paid (human approval #1 in Problem 9), so overdue is false and vendor_can_ship is true. days_past_due = 3 is just the gap from the 2026-08-28 due date to the shop date; the tool reports it even for paid invoices."
+      }
+    },
+    {
+      "prompt": "Use `get_rent_due` to check the rent details for lease 1.",
+      "tool": "get_rent_due",
+      "arguments": {
+        "lease_id": 1
+      },
+      "output": {
+        "lease_id": 1,
+        "space_name": "Chapel Street shop",
+        "landlord": "Elm City Properties",
+        "monthly_rent": 2400,
+        "next_due": "2026-10-02",
+        "notes": null,
+        "today": "2026-08-31",
+        "days_until_due": 32,
+        "overdue": false,
+        "cash_accounts": [
+          {
+            "name": "checking",
+            "balance": 152,
+            "date": "2026-08-31",
+            "can_cover_rent": false,
+            "balance_after_rent": -2248
+          }
+        ]
+      },
+      "verification": {
+        "sql": "SELECT * FROM leases WHERE id = 1; SELECT * FROM cash_accounts; SELECT date_today FROM desk;",
+        "database_values": {
+          "monthly_rent": 2400.0,
+          "next_due": "2026-10-02",
+          "landlord": "Elm City Properties",
+          "checking_balance": 152.0,
+          "date_today": "2026-08-31"
+        },
+        "matches": true,
+        "notes": "next_due moved from 2026-09-02 to 2026-10-02 after rent approval #3. 2026-08-31 to 2026-10-02 is 32 days. $152 - $2,400 = -$2,248, so checking cannot cover next month's rent."
+      }
+    },
+    {
+      "prompt": "Use `check_bulk_order` to evaluate an order of 20 `CC-HOOD-NAVY` hoodies in size M with a 10% discount.",
+      "tool": "check_bulk_order",
+      "arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "size": "M",
+        "qty": 20,
+        "discount_pct": 10
+      },
+      "output": {
+        "sku": "CC-HOOD-NAVY",
+        "name": "Basic Hoodie Big Yale",
+        "size": "M",
+        "location": "Aisle A",
+        "requested_qty": 20,
+        "on_hand": 8,
+        "can_fill_from_stock": false,
+        "shortfall": 12,
+        "unit_cost": 22,
+        "list_price": 58,
+        "discount_pct": 10,
+        "discounted_unit_price": 52.2,
+        "unit_margin": 30.2,
+        "margin_pct": 57.9,
+        "order_total": 1044,
+        "order_margin": 604,
+        "below_cost": false,
+        "max_discount_pct_at_cost": 62.1,
+        "restock_cost": 264,
+        "vendors": [
+          {
+            "id": 1,
+            "name": "Bulldog Print Co",
+            "specialty": "apparel reprint",
+            "lead_days": 5
+          },
+          {
+            "id": 2,
+            "name": "Elm City Gifts",
+            "specialty": "mugs and small goods",
+            "lead_days": 3
+          },
+          {
+            "id": 3,
+            "name": "QuickShip CT",
+            "specialty": "local courier",
+            "lead_days": 1
+          }
+        ]
+      },
+      "verification": {
+        "sql": "SELECT * FROM inventory WHERE sku = 'CC-HOOD-NAVY' AND size = 'M'; SELECT * FROM pricing WHERE sku = 'CC-HOOD-NAVY'; SELECT * FROM vendors;",
+        "database_values": {
+          "on_hand": 8,
+          "location": "Aisle A",
+          "unit_cost": 22.0,
+          "list_price": 58.0,
+          "vendors": 3
+        },
+        "recomputed": {
+          "discounted_unit_price": "58 x 0.90 = 52.20",
+          "unit_margin": "52.20 - 22 = 30.20",
+          "margin_pct": "30.20 / 52.20 = 57.9%",
+          "order_total": "52.20 x 20 = 1,044",
+          "order_margin": "30.20 x 20 = 604",
+          "shortfall": "20 - 8 = 12",
+          "restock_cost": "12 x 22 = 264",
+          "max_discount_pct_at_cost": "1 - 22/58 = 62.1%"
+        },
+        "matches": true,
+        "notes": "Stock is still 8: the rejected restock (#4) never added inventory."
+      }
+    }
+  ],
+  "result": "3/3 tools returned outputs that match data/campus_customs_new.db."
+}
