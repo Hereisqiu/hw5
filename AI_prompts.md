@@ -282,3 +282,22 @@ This file records the prompts I typed to my vibe coder (Claude Code), one sectio
 > Implementation: Only fill the Reflection tab in `output/desk_tickets.html`. Preserve all existing Expected, Actual, and Cash content, HTML structure, styling, navigation, and functionality. Do not modify other files or rerun the agents.
 
 **Follow-up:** None needed.
+
+## Problem 11: Submit to GitHub
+
+**Prompt:**
+> Push my code to a public GitHub repository so graders can clone it. Save the repository URL in `output/github_url.txt` and give me the same URL to submit on Canvas.
+> Do not upload my real `.env` file. Make sure both database files are included under `data/`: the original database and the working copy.
+> Follow the expected file structure shown in `Pasted Graphic 1.png`.
+> In the README, explain how to:
+>
+> * Copy the original database to the working copy for a clean run.
+> * Start the MCP server.
+> * Start the FastAPI backend.
+> * Launch the React board.
+> * Reset the database before running all three tickets.
+
+**Follow-up:**
+> before pushing make sure: Environment variables: Do not commit my real .env file or any API keys to GitHub. Add .env to .gitignore and include a .env.example file containing the required environment variable names with placeholder values, but no actual credentials. In the README, explain how to copy .env.example to .env and fill in the necessary values before running the project.
+
+What was missing: the first prompt only said not to upload `.env`, so it didn't require a placeholder `.env.example`, a `.gitignore` entry, a check for API keys, or README steps for creating `.env`.
