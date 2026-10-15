@@ -1,0 +1,20 @@
+# Secrets: only .env.example (placeholders) is committed
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Node / Vite
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Misc
+.DS_Store
+*.json.tmp
+*.log
